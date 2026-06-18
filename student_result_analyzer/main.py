@@ -1,29 +1,29 @@
-students = [
-    {
-        "name": "Rahul",
-        "math": 90,
-        "science": 85,
-        "english": 88
-    },
-    {
-        "name": "Priya",
-        "math": 95,
-        "science": 92,
-        "english": 90
-    },
-    {
-        "name": "Aman",
-        "math": 78,
-        "science": 80,
-        "english": 75
-    }
-]
+students = []
 
-print("\nStudents Data:")
+# Take input from user
+num_students = int(input("Enter number of students: "))
+for i in range(num_students):
+    print(f"\nEnter details for Student {i + 1}")
+
+name = input("Enter Name: ")
+math = int(input("Enter Math Marks: "))
+science = int(input("Enter Science Marks: "))
+english = int(input("Enter English Marks: "))
+
+student = {
+    "name": name,
+    "math": math,
+    "science": science,
+    "english": english
+}
+
+students.append(student)
+
+
+print("\n===== STUDENTS DATA =====")
 print(students)
 
-
-#Calculate total marks
+# Calculate Total Marks
 def calculate_total(student):
     return (
         student["math"] +
@@ -31,14 +31,13 @@ def calculate_total(student):
         student["english"]
     )
 
-
-#Calculate percentage
+# Calculate Percentage
 def calculate_percentage(student):
     total = calculate_total(student)
-    return total / 3
+    subjects = 3
+    return total / subjects
 
-
-#Assign grade
+# Assign Grade
 def assign_grade(student):
     percentage = calculate_percentage(student)
 
@@ -54,42 +53,39 @@ def assign_grade(student):
         return "Fail"
 
 
-#Rank students
+# Rank Students
 def rank_students(students):
     students.sort(
-        key=calculate_total,
-        reverse=True
+    key=calculate_total,
+    reverse=True
     )
 
-    print("\n===== RANKINGS =====")
+print("\n===== STUDENT RANKINGS =====")
 
-    for rank, student in enumerate(students, start=1):
-        print(
-            f"{rank}. {student['name']} "
-            f"- Total: {calculate_total(student)}"
-        )
+for rank, student in enumerate(students, start=1):
+
+    print(
+        f"{rank}. {student['name']} "
+        f"- Total Marks: {calculate_total(student)}"
+    )
 
 
-#Display rankings
+# Display Rankings
 rank_students(students)
 
 
-#Generate reports
+# Generate Reports
 print("\n===== STUDENT REPORTS =====")
 
 for student in students:
-
     total = calculate_total(student)
-
     percentage = calculate_percentage(student)
-
     grade = assign_grade(student)
 
-    print("\n----- REPORT -----")
-    print("Name:", student["name"])
-    print("Total:", total)
-    print("Percentage:", round(percentage, 2))
-    print("Grade:", grade)
-
-
+    print("\n-------------------------")
+    print(f"Name       : {student['name']}")
+    print(f"Total Marks: {total}")
+    print(f"Percentage : {round(percentage, 2)}%")
+    print(f"Grade      : {grade}")
+    print("-------------------------")
 
