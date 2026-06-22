@@ -14,102 +14,64 @@ from resume_processor import (
 root = tk.Tk()
 
 root.title("Resume Sorting Automation System")
-
-root.geometry("900x600")
+root.geometry("1000x700")
 
 folder_path = ""
 
 
 def select_folder():
-
     global folder_path
 
     folder_path = filedialog.askdirectory()
 
-    folder_label.config(
-        text=folder_path
-    )
+    folder_label.config(text=folder_path)
 
 
 def analyze_resumes():
 
+    # Clear previous table data
+    for item in tree.get_children():
+        tree.delete(item)
+
     if folder_path == "":
-
-        print("Please select a folder first")
-
+        status_label.config(text="Please select a resume folder first")
         return
 
     resumes = get_resumes(folder_path)
 
     shortlisted_candidates = []
 
-    print("\n===== RESUME ANALYSIS =====")
-
     for resume in resumes:
 
-        name = extract_name(
-            resume["content"]
-        )
+        name = extract_name(resume["content"])
 
-        email = extract_email(
-            resume["content"]
-        )
+        email = extract_email(resume["content"])
 
-        skills = extract_skills(
-            resume["content"]
-        )
+        skills = extract_skills(resume["content"])
 
-        score = calculate_score(
-            skills
-        )
+        score = calculate_score(skills)
 
         if score >= 60:
-
             status = "Shortlisted"
 
-            shortlisted_candidates.append(
-                {
-                    "Name": name,
-                    "Email": email,
-                    "Score": score
-                }
-            )
+            shortlisted_candidates.append({
+                "Name": name,
+                "Email": email,
+                "Score": score
+            })
 
         else:
-
             status = "Rejected"
 
-        print("\n====================")
-
-        print(
-            "File:",
-            resume["file"]
-        )
-
-        print(
-            "Name:",
-            name
-        )
-
-        print(
-            "Email:",
-            email
-        )
-
-        print(
-            "Skills:",
-            skills
-        )
-
-        print(
-            "Score:",
-            score,
-            "%"
-        )
-
-        print(
-            "Status:",
-            status
+        tree.insert(
+            "",
+            "end",
+            values=(
+                name,
+                email,
+                f"{score}%",
+                status
+            )
         )
 
     with open(
@@ -121,11 +83,7 @@ def analyze_resumes():
         writer = csv.writer(file)
 
         writer.writerow(
-            [
-                "Name",
-                "Email",
-                "Score"
-            ]
+            ["Name", "Email", "Score"]
         )
 
         for candidate in shortlisted_candidates:
@@ -138,53 +96,92 @@ def analyze_resumes():
                 ]
             )
 
-    print(
-        "\nReport Generated Successfully"
+    status_label.config(
+        text="Analysis Completed Successfully"
     )
+
+
 
 
 heading = tk.Label(
     root,
     text="Resume Sorting Automation System",
-    font=("Arial", 20, "bold")
+    font=("Arial", 24, "bold")
 )
 
 heading.pack(pady=20)
 
+
+
+button_frame = tk.Frame(root)
+button_frame.pack(pady=10)
+
 select_btn = tk.Button(
-    root,
+    button_frame,
     text="Select Resume Folder",
-    command=select_folder
+    command=select_folder,
+    width=20
 )
 
-select_btn.pack(pady=10)
+select_btn.grid(row=0, column=0, padx=10)
+
+analyze_btn = tk.Button(
+    button_frame,
+    text="Analyze Resumes",
+    command=analyze_resumes,
+    width=20
+)
+
+analyze_btn.grid(row=0, column=1, padx=10)
+
 
 folder_label = tk.Label(
     root,
-    text="No Folder Selected"
+    text="No Folder Selected",
+    font=("Arial", 10)
 )
 
-folder_label.pack()
+folder_label.pack(pady=5)
 
-analyze_btn = tk.Button(
-    root,
-    text="Analyze Resumes",
-    command=analyze_resumes
-)
 
-analyze_btn.pack(pady=10)
-
-root.mainloop()
 
 tree = ttk.Treeview(
     root,
     columns=("Name", "Email", "Score", "Status"),
-    show="headings"
+    show="headings",
+    height=15
 )
 
-tree.heading("Name", text="Name")
-tree.heading("Email", text="Email")
-tree.heading("Score", text="Score")
+tree.heading("Name", text="Candidate Name")
+tree.heading("Email", text="Email Address")
+tree.heading("Score", text="Match Score")
 tree.heading("Status", text="Status")
 
-tree.pack(fill="both", expand=True, padx=20, pady=20)
+tree.column("Name", width=220, anchor="center")
+tree.column("Email", width=320, anchor="center")
+tree.column("Score", width=120, anchor="center")
+tree.column("Status", width=180, anchor="center")
+
+tree.pack(
+    padx=20,
+    pady=20,
+    fill="both",
+    expand=True
+)
+
+
+
+status_label = tk.Label(
+    root,
+    text="Ready",
+    bd=1,
+    relief="sunken",
+    anchor="w"
+)
+
+status_label.pack(
+    side="bottom",
+    fill="x"
+)
+
+root.mainloop()
