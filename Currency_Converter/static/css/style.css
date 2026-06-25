@@ -1,0 +1,345 @@
+/* ==========================================================================
+   CurrencyHub — Custom Styles
+   ========================================================================== */
+
+/* ---------- Design tokens / theme variables ---------- */
+:root {
+    --app-bg: #eef1f8;
+    --app-bg-grad-1: #e7ebf7;
+    --app-bg-grad-2: #f5f3ff;
+    --app-card-bg: #ffffff;
+    --app-border: #e4e7ef;
+    --app-shadow: 0 12px 34px rgba(20, 30, 70, 0.07);
+    --app-shadow-hover: 0 18px 44px rgba(20, 30, 70, 0.12);
+    --app-primary: #4f46e5;
+    --app-primary-rgb: 79, 70, 229;
+    --app-primary-soft: rgba(79, 70, 229, 0.10);
+    --app-text: #16192a;
+    --app-muted: #6b7280;
+    --app-radius: 18px;
+    --app-radius-sm: 12px;
+}
+
+[data-bs-theme="dark"] {
+    --app-bg: #0c0e16;
+    --app-bg-grad-1: #0f121d;
+    --app-bg-grad-2: #14101f;
+    --app-card-bg: #161a26;
+    --app-border: #272c3b;
+    --app-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+    --app-shadow-hover: 0 18px 44px rgba(0, 0, 0, 0.6);
+    --app-primary: #818cf8;
+    --app-primary-rgb: 129, 140, 248;
+    --app-primary-soft: rgba(129, 140, 248, 0.14);
+    --app-text: #e7eaf3;
+    --app-muted: #9aa3b8;
+}
+
+/* ---------- Base ---------- */
+body {
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--app-text);
+    background:
+        radial-gradient(1200px 600px at 10% -10%, var(--app-bg-grad-2), transparent 60%),
+        radial-gradient(1000px 500px at 110% 10%, var(--app-bg-grad-1), transparent 55%),
+        var(--app-bg);
+    background-attachment: fixed;
+    min-height: 100vh;
+    transition: background-color .35s ease, color .35s ease;
+}
+
+h1, h2, h3, h4, h5, h6, .display-6 {
+    letter-spacing: -0.02em;
+}
+
+/* ---------- Navbar ---------- */
+.app-navbar {
+    background: color-mix(in srgb, var(--app-card-bg) 88%, transparent);
+    border-bottom: 1px solid var(--app-border);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+}
+
+.navbar-brand span {
+    letter-spacing: -0.03em;
+}
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Live status dot */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+    70%  { box-shadow: 0 0 0 9px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* ---------- Cards ---------- */
+.app-card {
+    background: var(--app-card-bg);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
+}
+.app-card:hover {
+    box-shadow: var(--app-shadow-hover);
+}
+
+.card-title {
+    color: var(--app-text);
+}
+
+/* ---------- Form controls ---------- */
+.form-control,
+.form-select {
+    border-radius: var(--app-radius-sm);
+    border-color: var(--app-border);
+    background-color: var(--app-card-bg);
+    color: var(--app-text);
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .35s ease;
+}
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 .25rem rgba(var(--app-primary-rgb), .18);
+    background-color: var(--app-card-bg);
+    color: var(--app-text);
+}
+.form-control::placeholder {
+    color: var(--app-muted);
+}
+.input-group-text {
+    background-color: var(--app-primary-soft);
+    border-color: var(--app-border);
+    color: var(--app-primary);
+    font-weight: 600;
+    border-radius: var(--app-radius-sm);
+}
+.form-select option {
+    color: #16192a;
+    background: #fff;
+}
+
+/* ---------- Swap button ---------- */
+.swap-btn {
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: transform .4s cubic-bezier(.68, -0.55, .27, 1.55), background-color .2s ease, color .2s ease;
+}
+.swap-btn:hover {
+    transform: rotate(180deg) scale(1.05);
+}
+.swap-btn:active {
+    transform: rotate(180deg) scale(0.95);
+}
+
+/* ---------- Primary button ---------- */
+.btn-primary {
+    --bs-btn-bg: var(--app-primary);
+    --bs-btn-border-color: var(--app-primary);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--app-primary) 88%, #000);
+    --bs-btn-hover-border-color: var(--app-primary);
+    --bs-btn-active-bg: var(--app-primary);
+    --bs-btn-active-border-color: var(--app-primary);
+    --bs-btn-focus-shadow-rgb: var(--app-primary-rgb);
+    box-shadow: 0 8px 20px rgba(var(--app-primary-rgb), .28);
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--app-primary);
+    --bs-btn-border-color: var(--app-primary);
+    --bs-btn-hover-bg: var(--app-primary);
+    --bs-btn-hover-border-color: var(--app-primary);
+    --bs-btn-active-bg: var(--app-primary);
+}
+
+/* ---------- Result box ---------- */
+.result-box {
+    background: linear-gradient(135deg, rgba(var(--app-primary-rgb), .10), rgba(var(--app-primary-rgb), .02));
+    border: 1px solid rgba(var(--app-primary-rgb), .28);
+    border-radius: var(--app-radius);
+    padding: 1.4rem 1.6rem;
+    animation: rise .4s ease both;
+}
+@keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.result-amount {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--app-text);
+}
+.result-amount .fi {
+    font-size: 1.6rem;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* ---------- Spinner overlay ---------- */
+.spinner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--app-card-bg) 72%, transparent);
+    border-radius: var(--app-radius);
+    z-index: 6;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* ---------- Favorites chips ---------- */
+.fav-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .4rem .8rem;
+    border-radius: 999px;
+    background: var(--app-primary-soft);
+    border: 1px solid rgba(var(--app-primary-rgb), .25);
+    color: var(--app-primary);
+    font-weight: 600;
+    font-size: .875rem;
+    cursor: pointer;
+    transition: transform .15s ease, background-color .2s ease;
+    user-select: none;
+}
+.fav-chip:hover {
+    transform: translateY(-2px);
+    background: rgba(var(--app-primary-rgb), .18);
+}
+.fav-chip .fi {
+    border-radius: 3px;
+    overflow: hidden;
+}
+.fav-chip .fav-remove {
+    margin-left: .15rem;
+    opacity: .6;
+    transition: opacity .15s ease, transform .15s ease;
+}
+.fav-chip .fav-remove:hover {
+    opacity: 1;
+    transform: scale(1.2);
+    color: #ef4444;
+}
+
+/* ---------- Trend chart ---------- */
+.trend-chart-frame {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    max-height: 260px;
+    overflow: hidden;
+}
+
+.trend-chart-frame canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ---------- History table ---------- */
+.table {
+    --bs-table-color: var(--app-text);
+    --bs-table-bg: transparent;
+    --bs-table-border-color: var(--app-border);
+    --bs-table-hover-bg: var(--app-primary-soft);
+    --bs-table-hover-color: var(--app-text);
+}
+.table thead th {
+    color: var(--app-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: .75rem;
+    letter-spacing: .04em;
+    border-bottom-width: 1px;
+}
+.curr-code {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-weight: 600;
+}
+.curr-code .fi {
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+/* ---------- Alerts ---------- */
+#alertArea .alert {
+    border-radius: var(--app-radius-sm);
+    margin-bottom: 1rem;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    color: var(--app-muted) !important;
+}
+
+/* ---------- Flag icon sizing helper ---------- */
+.fi {
+    line-height: 1.2em;
+}
+
+/* ---------- Misc / responsive ---------- */
+.text-secondary {
+    color: var(--app-muted) !important;
+}
+
+.table-responsive {
+    border-radius: var(--app-radius-sm);
+}
+
+@media (max-width: 575.98px) {
+    .swap-btn {
+        width: 46px;
+        height: 46px;
+    }
+    .result-amount {
+        font-size: 1.6rem;
+    }
+    .trend-chart-frame {
+        height: 220px;
+        max-height: 220px;
+    }
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(var(--app-primary-rgb), .35);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(var(--app-primary-rgb), .55);
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
