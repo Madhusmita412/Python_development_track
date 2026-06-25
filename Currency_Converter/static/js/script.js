@@ -1,11 +1,6 @@
-/* ==========================================================================
-   CurrencyHub — Front-end logic
-   Wires the UI to the Flask backend API endpoints.
-   ========================================================================== */
 (function () {
     "use strict";
 
-    /* ---------- API endpoints ---------- */
     const API = {
         convert:    "/api/convert",
         history:    "/api/history",
@@ -13,7 +8,6 @@
         trend:      "/api/trend",
     };
 
-    /* ---------- DOM cache ---------- */
     const $ = (sel) => document.querySelector(sel);
 
     const els = {
@@ -45,13 +39,9 @@
     };
 
     let trendChart = null;
-    let lastResult = null; // cached converted result for the copy button
+    let lastResult = null;
     const TREND_FROM = "USD";
     const TREND_TO = "INR";
-
-    /* ======================================================================
-       Utilities
-       ====================================================================== */
 
     function showSpinner(show) {
         els.spinnerOverlay.classList.toggle("d-none", !show);
@@ -80,7 +70,6 @@
         div.innerHTML =
             `<i class="bi ${icon}"></i><div>${escapeHtml(message)}</div>`;
         els.alertArea.appendChild(div);
-        // Auto-dismiss after a few seconds.
         setTimeout(() => {
             div.style.transition = "opacity .4s ease";
             div.style.opacity = "0";
@@ -101,7 +90,6 @@
             .replace(/'/g, "&#39;");
     }
 
-    /* Format a number with thousands separators and up to 4 decimals. */
     function fmt(n) {
         const num = Number(n);
         if (!isFinite(num)) return "0.00";
@@ -111,7 +99,6 @@
         });
     }
 
-    /* Format an ISO timestamp (or any date string) into a friendly label. */
     function fmtTime(value) {
         if (!value) return "—";
         let d;
@@ -129,14 +116,10 @@
         });
     }
 
-    /* Build a flag-icon class string ("fi fi-xx") from a country code. */
     function flagClass(code) {
         return `fi fi-${String(code || "").toLowerCase()}`;
     }
 
-    /* ======================================================================
-       Theme (light / dark)
-       ====================================================================== */
     const Theme = {
         init() {
             const saved = localStorage.getItem("cc-theme");
@@ -158,14 +141,10 @@
                 icon.className = mode === "dark"
                     ? "bi bi-sun-fill" : "bi bi-moon-stars-fill";
             }
-            // Re-render chart colours to match the new theme.
             if (trendChart) renderTrend(trendChart._lastData);
         },
     };
 
-    /* ======================================================================
-       Converter
-       ====================================================================== */
     const Converter = {
         init() {
             this.updateAmountSymbol();
@@ -191,7 +170,6 @@
             els.fromCurrency.value = els.toCurrency.value;
             els.toCurrency.value = f;
             this.updateAmountSymbol();
-            // If a result is already shown, reconvert for instant feedback.
             if (!els.resultBox.classList.contains("d-none")) this.convert();
         },
 
@@ -218,7 +196,6 @@
                 }
                 this.renderResult(json.data);
                 lastResult = json.data;
-                // Refresh dependent panels.
                 History.load();
                 Trend.load();
             } catch (err) {
@@ -242,9 +219,8 @@
             els.updatedTime.textContent = "Updated " + fmtTime(data.updated);
 
             els.resultBox.classList.remove("d-none");
-            // Brief highlight animation.
             els.resultBox.style.animation = "none";
-            void els.resultBox.offsetWidth; // reflow
+            void els.resultBox.offsetWidth;
             els.resultBox.style.animation = "";
         },
 
@@ -277,9 +253,6 @@
         },
     };
 
-    /* ======================================================================
-       Favorites
-       ====================================================================== */
     const Favorites = {
         init() {
             this.load();
@@ -291,7 +264,6 @@
                 const json = await res.json();
                 if (json.success) this.render(json.data || []);
             } catch {
-                /* silent — favorites are non-critical */
             }
         },
 
@@ -313,8 +285,6 @@
                     `<span class="${flagClass(favToFlag(fav.to_curr))}"></span>` +
                     `<span>${escapeHtml(fav.to_curr)}</span>` +
                     `<i class="bi bi-x-lg fav-remove" title="Remove"></i>`;
-
-                // Clicking the chip applies the pair (but not on the remove icon).
                 chip.addEventListener("click", (e) => {
                     if (e.target.classList.contains("fav-remove")) return;
                     els.fromCurrency.value = fav.from_curr;
@@ -334,7 +304,6 @@
             const from = els.fromCurrency.value;
             const to = els.toCurrency.value;
             const existing = els.favoritesList.querySelector(".fav-chip");
-            // Check whether this pair is already saved.
             const already = Array.from(els.favoritesList.querySelectorAll(".fav-chip"))
                 .some((c) => c.textContent.includes(from) && c.textContent.includes(to));
 
@@ -373,8 +342,6 @@
         },
     };
 
-    /* Map a currency code to a flag country code for favorites chips.
-       Falls back to the option data-flag attribute when available. */
     function favFromFlag(code) {
         const opt = findOption(els.fromCurrency, code);
         return opt ? opt.getAttribute("data-flag") : code.slice(0, 2).toLowerCase();
@@ -387,9 +354,6 @@
         return Array.from(select.options).find((o) => o.value === code);
     }
 
-    /* ======================================================================
-       History
-       ====================================================================== */
     const History = {
         init() {
             this.load();
@@ -402,7 +366,6 @@
                 const json = await res.json();
                 if (json.success) this.render(json.data || []);
             } catch {
-                /* non-critical */
             }
         },
 
@@ -443,8 +406,6 @@
         },
     };
 
-    /* Resolve a flag class suffix ("fi xx") for a currency code by looking
-       at the option lists, with a sensible fallback. */
     function flagFor(code) {
         const from = findOption(els.fromCurrency, code);
         const to = findOption(els.toCurrency, code);
@@ -453,9 +414,6 @@
         return `fi-${String(code).slice(0, 2).toLowerCase()}`;
     }
 
-    /* ======================================================================
-       Trend chart (Chart.js)
-       ====================================================================== */
     const Trend = {
         init() {
             if (typeof Chart === "undefined") return;
@@ -469,7 +427,6 @@
                 const json = await res.json();
                 if (json.success) renderTrend(json.data);
             } catch {
-                /* chart is non-critical */
             }
         },
     };
@@ -571,9 +528,6 @@
         return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
-    /* ======================================================================
-       Boot
-       ====================================================================== */
     document.addEventListener("DOMContentLoaded", () => {
         if (els.year) els.year.textContent = new Date().getFullYear();
         Theme.init();
