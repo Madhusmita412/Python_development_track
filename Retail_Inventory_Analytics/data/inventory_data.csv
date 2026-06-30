@@ -1,0 +1,21 @@
+Product ID,Product Name,Category,Supplier,Stock,Price,Reorder Level,Status
+P001,Laptop,Electronics,Dell,25,65000,10,In Stock
+P002,Mouse,Accessories,Logitech,120,499,30,In Stock
+P003,Keyboard,Accessories,Logitech,15,1200,20,Low Stock
+P004,Monitor,Electronics,Samsung,8,15000,10,Low Stock
+P005,Printer,Office,HP,12,9500,10,In Stock
+P006,Scanner,Office,Canon,4,8500,8,Out of Stock
+P007,Headphones,Electronics,Sony,50,3500,15,In Stock
+P008,Webcam,Electronics,Logitech,6,2500,10,Low Stock
+P009,USB Cable,Accessories,Anker,200,299,50,In Stock
+P010,Router,Networking,TP-Link,18,2800,10,In Stock
+P011,SSD 1TB,Storage,Samsung,9,7500,10,Low Stock
+P012,External HDD,Storage,Seagate,30,5200,10,In Stock
+P013,Projector,Office,Epson,3,45000,5,Out of Stock
+P014,Desk Chair,Furniture,Godrej,14,8500,5,In Stock
+P015,Office Desk,Furniture,Godrej,5,15000,8,Low Stock
+P016,Switch 24 Port,Networking,Cisco,16,18000,5,In Stock
+P017,Graphics Card,Electronics,NVIDIA,7,42000,8,Low Stock
+P018,RAM 16GB,Components,Corsair,40,4500,15,In Stock
+P019,CPU Cooler,Components,Cooler Master,11,3200,10,In Stock
+P020,Power Bank,Accessories,Mi,80,1500,20,In Stock
