@@ -5,6 +5,13 @@ from tkinter import filedialog
 import customtkinter as ctk
 from tkinter import ttk
 
+from ui.sidebar import Sidebar
+from ui.header import Header
+from ui.cards import DashboardCard
+from ui.toolbar import Toolbar
+
+
+
 class Dashboard:
 
     def __init__(self):
@@ -37,17 +44,13 @@ class Dashboard:
         # Build UI
         self.create_layout()
 
+
         # Main Layout
     
     def create_layout(self):
 
-        # Sidebar
-        self.sidebar = ctk.CTkFrame(
-            self.root,
-            width=240,
-            corner_radius=0,
-            fg_color=self.sidebar_color
-        )
+       # Sidebar
+        self.sidebar = Sidebar(self.root)
 
         self.sidebar.pack(
             side="left",
@@ -67,132 +70,24 @@ class Dashboard:
             expand=True
         )
 
-        self.create_sidebar()
-
         self.create_header()
 
-        # Sidebar
+        
+
     
-    def create_sidebar(self):
-
-        title = ctk.CTkLabel(
-            self.sidebar,
-            text="🏪 Inventory Pro",
-            font=("Segoe UI", 28, "bold")
-        )
-
-        title.pack(
-            pady=(30, 40)
-        )
-
-        menu_items = [
-
-            "📊 Dashboard",
-
-            "📦 Inventory",
-
-            "📈 Analytics",
-
-            "📄 Reports",
-
-            "⚙ Settings"
-
-        ]
-
-        for item in menu_items:
-
-            btn = ctk.CTkButton(
-
-                self.sidebar,
-
-                text=item,
-
-                width=190,
-
-                height=45,
-
-                fg_color="transparent",
-
-                hover_color="#2563EB",
-
-                anchor="w",
-
-                font=("Segoe UI", 15)
-
-            )
-
-            btn.pack(
-                pady=8,
-                padx=20
-            )
 
         # Header
     
     def create_header(self):
 
-        header = ctk.CTkFrame(
-            self.main_frame,
-            height=90,
-            fg_color=self.card_color,
-            corner_radius=15
-        )
+        # Header
 
-        header.pack(
+        self.header = Header(self.main_frame)
+
+        self.header.pack(
             fill="x",
             padx=25,
             pady=20
-        )
-
-        left = ctk.CTkFrame(
-            header,
-            fg_color="transparent"
-        )
-
-        left.pack(
-            side="left",
-            padx=20,
-            pady=15
-        )
-
-        dashboard_title = ctk.CTkLabel(
-
-            left,
-
-            text="Retail Inventory Analytics Dashboard",
-
-            font=("Segoe UI", 28, "bold")
-
-        )
-
-        dashboard_title.pack(anchor="w")
-
-        subtitle = ctk.CTkLabel(
-
-            left,
-
-            text="Inventory Management & Business Intelligence Platform",
-
-            text_color="lightgray",
-
-            font=("Segoe UI", 15)
-
-        )
-
-        subtitle.pack(anchor="w")
-
-        user = ctk.CTkLabel(
-
-            header,
-
-            text="👤 Admin",
-
-            font=("Segoe UI", 16)
-
-        )
-
-        user.pack(
-            side="right",
-            padx=25
         )
 
         # Welcome Card
@@ -200,7 +95,8 @@ class Dashboard:
         welcome = ctk.CTkFrame(
             self.main_frame,
             height=120,
-            fg_color=self.card_color
+            fg_color=self.card_color,
+            corner_radius=20
         )
 
         welcome.pack(
@@ -209,14 +105,12 @@ class Dashboard:
             pady=(0, 20)
         )
 
+        welcome.pack_propagate(False)
+
         welcome_title = ctk.CTkLabel(
-
             welcome,
-
             text="Welcome Back 👋",
-
             font=("Segoe UI", 26, "bold")
-
         )
 
         welcome_title.pack(
@@ -226,15 +120,10 @@ class Dashboard:
         )
 
         welcome_text = ctk.CTkLabel(
-
             welcome,
-
-            text="Monitor inventory, analyze stock levels, and generate business insights from one dashboard.",
-
+            text="Monitor inventory, analyze stock levels and generate business insights from one dashboard.",
             font=("Segoe UI", 15),
-
             text_color="lightgray"
-
         )
 
         welcome_text.pack(
@@ -242,198 +131,27 @@ class Dashboard:
             padx=25
         )
 
-        self.create_kpi_cards()
+        # KPI Cards
 
-        self.create_toolbar()
+        self.create_cards()
+
+        # Toolbar
+
+        self.toolbar = Toolbar(self.main_frame)
+
+        self.toolbar.pack(
+            fill="x",
+            padx=25,
+            pady=20
+        )
+
+        # Inventory Table
+
+        self.create_table()
 
 
        
-#KPI Cards
-    def create_kpi_cards(self):
 
-        cards_frame = ctk.CTkFrame(
-            self.main_frame,
-            fg_color="transparent"
-        )
-
-        cards_frame.pack(
-            fill="x",
-            padx=25,
-            pady=(0, 20)
-        )
-
-        self.product_card = self.create_card(
-            cards_frame,
-            "📦",
-            "Products",
-            "0",
-            0
-        )
-
-        self.inventory_card = self.create_card(
-            cards_frame,
-            "💰",
-            "Inventory Value",
-            "₹0",
-            1
-        )
-
-        self.low_stock_card = self.create_card(
-            cards_frame,
-            "⚠",
-            "Low Stock",
-            "0",
-            2
-        )
-
-        self.supplier_card = self.create_card(
-            cards_frame,
-            "🚚",
-            "Suppliers",
-            "0",
-            3
-        )
-    
-
-
-# Reusable Dashboard Card
-    def create_card(
-        self,
-       parent,
-       icon,
-       title,
-       value,
-       column
-    ):
-        card = ctk.CTkFrame(
-        parent,
-        width=250,
-        height=140,
-        fg_color=self.card_color,
-        corner_radius=20,
-        border_width=1,
-        border_color="#334155"
-        )
-
-        card.grid(
-            row=0,
-            column=column,
-            padx=12
-        )
-
-        card.grid_propagate(False)
-
-        icon_label = ctk.CTkLabel(
-            card,
-            text=icon,
-            font=("Segoe UI",32)
-        )
-
-        icon_label.pack(
-            pady=(15,5)
-        )
-
-        title_label = ctk.CTkLabel(
-            card,
-            text=title,
-            font=("Segoe UI",16)
-        )
-    
-
-        title_label.pack()
-
-        value_label = ctk.CTkLabel(
-            card,
-            text=value,
-            font=("Segoe UI",30,"bold")
-        )
-
-        value_label.pack(
-            pady=(5,10)
-       )
-
-        return value_label
-
-# Toolbar
-
-
-    def create_toolbar(self):
-        toolbar = ctk.CTkFrame(
-            self.main_frame,
-            fg_color=self.card_color,
-            corner_radius=20,
-            height=110
-        )
-
-        toolbar.pack(
-            fill="x",
-            padx=25,
-            pady=(10,20)
-        )
-
-        toolbar.pack_propagate(False)
-
-        search = ctk.CTkEntry(
-            toolbar,
-            width=320,
-            height=42,
-            placeholder_text="🔍 Search Product..."
-        )
-
-        search.pack(
-            side="left",
-            padx=20
-        )
-
-        upload = ctk.CTkButton(
-            toolbar,
-            text="📂 Upload CSV",
-            width=150,
-            command=self.upload_csv
-        )
-
-        upload.pack(
-            side="left",
-            padx=10
-        )
-
-        clean_btn = ctk.CTkButton(
-            toolbar,
-            text="🧹 Clean",
-            width=150,
-            height=42
-        )
-
-        clean_btn.pack(
-            side="left",
-            padx=10
-        )
-
-        analyze_btn = ctk.CTkButton(
-            toolbar,
-            text="📊 Analyze",
-            width=150,
-            height=42
-        )
-
-        analyze_btn.pack(
-            side="left",
-            padx=10
-        )
-
-        export_btn = ctk.CTkButton(
-            toolbar,
-            text="📤 Export",
-            width=150,
-            height=42
-        )
-
-        export_btn.pack(
-            side="left",
-            padx=10
-        )
-
-        self.create_table()
 
     
 # Inventory Table
@@ -470,12 +188,21 @@ class Dashboard:
     # Columns
 
         columns = (
-            "Product",
+
+            "Product ID",
+
+            "Product Name",
+
             "Category",
-            "Stock",
-            "Price",
+
             "Supplier",
+
+            "Stock",
+
+            "Price",
+
             "Status"
+
         )
 
         self.tree = ttk.Treeview(
@@ -483,7 +210,7 @@ class Dashboard:
         columns=columns,
         show="headings",
         height=15
-    )
+        )
 
     #Headings 
 
@@ -583,39 +310,127 @@ class Dashboard:
     
     def load_csv(self, file_path):
 
+        import pandas as pd
+
         df = pd.read_csv(file_path)
 
-        print(df)
-        for item in self.tree.get_children():
+    # Calculate Dashboard KPIs
 
-             self.tree.delete(item) 
-        
-        for index, row in df.iterrows():
+        total_products = len(df)
+
+        inventory_value = (df["Stock"] * df["Price"]).sum()
+
+        low_stock = len(df[df["Stock"] <= df["Reorder Level"]])
+
+        total_suppliers = df["Supplier"].nunique()
+
+
+# Update Dashboard Card=
+
+        self.products_card.update_value(str(total_products))
+
+        self.inventory_card.update_value(f"₹{inventory_value:,.0f}")
+
+        self.low_stock_card.update_value(str(low_stock))
+
+        self.suppliers_card.update_value(str(total_suppliers))
+
+
+        # Clear Previous Table Data
+
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert CSV Data into Table
+
+        for _, row in df.iterrows():
 
             self.tree.insert(
-
                 "",
-
                 "end",
-
                 values=(
+                    row["Product ID"],
 
-                row["Product"],
+                    row["Product Name"],
 
-                row["Category"],
+                    row["Category"],
 
-                row["Stock"],
+                    row["Supplier"],
 
-                row["Price"],
+                    row["Stock"],
 
-                row["Supplier"],
+                    f"₹{row['Price']}",
 
-                row["Status"]
+                    row["Status"]
 
                 )
+        )
+            
+    def create_cards(self):
 
-            )
+        cards_frame = ctk.CTkFrame(
+            self.main_frame,
+            fg_color="transparent"
+        )
 
+        cards_frame.pack(
+            fill="x",
+            padx=25,
+            pady=15
+        )
+
+        self.products_card = DashboardCard(
+            cards_frame,
+            "📦",
+            "Products",
+            "0"
+        )
+
+        self.products_card.grid(
+            row=0,
+            column=0,
+            padx=12
+        )
+
+        self.inventory_card = DashboardCard(
+            cards_frame,
+            "💰",
+            "Inventory Value",
+            "₹0"
+        )
+
+        self.inventory_card.grid(
+            row=0,
+            column=1,
+            padx=12
+        )
+
+        self.low_stock_card = DashboardCard(
+            cards_frame,
+            "⚠",
+            "Low Stock",
+            "0"
+        )
+
+        self.low_stock_card.grid(
+            row=0,
+            column=2,
+            padx=12
+        )
+
+        self.suppliers_card = DashboardCard(
+            cards_frame,
+            "🚚",
+            "Suppliers",
+            "0"
+        )
+
+        self.suppliers_card.grid(
+            row=0,
+            column=3,
+            padx=12
+        )
+    
     # Run
     
     def run(self):
