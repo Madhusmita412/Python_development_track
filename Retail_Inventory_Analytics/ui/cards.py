@@ -8,7 +8,7 @@ class DashboardCard(ctk.CTkFrame):
         super().__init__(
             parent,
             width=260,
-            height=140,
+            height=150,
             corner_radius=18,
             fg_color="#1E293B",
             border_width=1,
@@ -17,39 +17,74 @@ class DashboardCard(ctk.CTkFrame):
 
         self.grid_propagate(False)
 
-        #Icon
+        
+        # Icon
+        
+
         self.icon_label = ctk.CTkLabel(
             self,
             text=icon,
-            font=("Segoe UI Emoji", 28)
+            font=("Segoe UI Emoji", 30)
         )
 
         self.icon_label.pack(
-            pady=(15, 5)
+            pady=(18, 8)
         )
 
-        #Title
+        
+        # Title
+        
+
         self.title_label = ctk.CTkLabel(
             self,
             text=title,
-            font=("Segoe UI", 16)
+            font=("Segoe UI", 15),
+            text_color="#CBD5E1"
         )
 
         self.title_label.pack()
 
-        #Value
+        
+        # Value
+        
+
         self.value_label = ctk.CTkLabel(
             self,
             text=value,
-            font=("Segoe UI", 30, "bold")
+            font=("Segoe UI", 28, "bold"),
+            text_color="white"
         )
 
         self.value_label.pack(
-            pady=(8, 15)
+            pady=(10, 18)
         )
+
+    
+    # Update Card Value
+    
 
     def update_value(self, value):
 
         self.value_label.configure(
             text=value
+        )
+
+    
+    # Update Card Title (Optional)
+    
+
+    def update_title(self, title):
+
+        self.title_label.configure(
+            text=title
+        )
+
+    
+    # Update Icon (Optional)
+    
+
+    def update_icon(self, icon):
+
+        self.icon_label.configure(
+            text=icon
         )

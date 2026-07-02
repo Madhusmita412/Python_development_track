@@ -8,14 +8,18 @@ class Header(ctk.CTkFrame):
 
         super().__init__(
             parent,
-            height=90,
-            corner_radius=15,
+            height=100,
+            corner_radius=20,
             fg_color="#1E293B"
         )
 
         self.pack_propagate(False)
 
         self.create_header()
+
+   
+    # Create Header
+   
 
     def create_header(self):
 
@@ -28,8 +32,8 @@ class Header(ctk.CTkFrame):
 
         left_frame.pack(
             side="left",
-            padx=20,
-            pady=15
+            padx=25,
+            pady=18
         )
 
         title = ctk.CTkLabel(
@@ -58,8 +62,11 @@ class Header(ctk.CTkFrame):
 
         right_frame.pack(
             side="right",
-            padx=20
+            padx=25,
+            pady=15
         )
+
+        # Date
 
         today = datetime.now().strftime("%d %b %Y")
 
@@ -71,10 +78,52 @@ class Header(ctk.CTkFrame):
 
         date_label.pack(anchor="e")
 
+        # Theme Switch
+
+        self.theme_switch = ctk.CTkSwitch(
+            right_frame,
+            text="🌙 Dark Mode",
+            command=self.toggle_theme
+        )
+
+        self.theme_switch.select()
+
+        self.theme_switch.pack(
+            anchor="e",
+            pady=(12, 0)
+        )
+
+        # Admin
+
         admin = ctk.CTkLabel(
             right_frame,
             text="👤 Admin",
             font=("Segoe UI", 16, "bold")
         )
 
-        admin.pack(anchor="e")
+        admin.pack(
+            anchor="e",
+            pady=(12, 0)
+        )
+
+   
+    # Theme Switch
+   
+
+    def toggle_theme(self):
+
+        if self.theme_switch.get():
+
+            ctk.set_appearance_mode("Dark")
+
+            self.theme_switch.configure(
+                text="🌙 Dark Mode"
+            )
+
+        else:
+
+            ctk.set_appearance_mode("Light")
+
+            self.theme_switch.configure(
+                text="☀ Light Mode"
+            )

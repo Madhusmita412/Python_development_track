@@ -1,39 +1,43 @@
-from turtle import title
-from matplotlib.pylab import rint
-import pandas as pd
 from tkinter import filedialog
 import customtkinter as ctk
-from tkinter import ttk
-
+from ui.export_dialog import ExportDialog
 from ui.sidebar import Sidebar
 from ui.header import Header
 from ui.cards import DashboardCard
 from ui.toolbar import Toolbar
+from ui.inventory_table import InventoryTable
+from ui.charts import DashboardCharts
 
+from services.inventory_processor import InventoryProcessor
+from services.analytics import InventoryAnalytics
+from services.exporter import Exporter
 
 
 class Dashboard:
 
     def __init__(self):
 
-        
+      
         # Theme
-        
+      
+
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
 
-        
+      
         # Main Window
-        
+      
+
         self.root = ctk.CTk()
 
         self.root.title("Retail Inventory Analytics Dashboard")
-
         self.root.geometry("1500x850")
-
         self.root.minsize(1300, 750)
 
+      
         # Colors
+      
+
         self.bg_color = "#0F172A"
         self.sidebar_color = "#111827"
         self.card_color = "#1E293B"
@@ -41,15 +45,37 @@ class Dashboard:
 
         self.root.configure(fg_color=self.bg_color)
 
+      
+        # Backend Services
+      
+
+        self.processor = InventoryProcessor()
+        self.exporter = Exporter()
+        self.analytics = None
+
+      
         # Build UI
+      
+
         self.create_layout()
 
+      
+        # Load Default Dataset
+      
 
-        # Main Layout
-    
+        try:
+            self.load_csv("data/inventory_data.csv")
+        except FileNotFoundError:
+            pass
+
+  
+    # Main Layout
+  
+
     def create_layout(self):
 
-       # Sidebar
+        # Sidebar
+
         self.sidebar = Sidebar(self.root)
 
         self.sidebar.pack(
@@ -58,6 +84,7 @@ class Dashboard:
         )
 
         # Main Content
+
         self.main_frame = ctk.CTkFrame(
             self.root,
             fg_color=self.bg_color,
@@ -72,12 +99,10 @@ class Dashboard:
 
         self.create_header()
 
-        
+  
+    # Header
+  
 
-    
-
-        # Header
-    
     def create_header(self):
 
         # Header
@@ -90,7 +115,9 @@ class Dashboard:
             pady=20
         )
 
+      
         # Welcome Card
+      
 
         welcome = ctk.CTkFrame(
             self.main_frame,
@@ -131,11 +158,15 @@ class Dashboard:
             padx=25
         )
 
+      
         # KPI Cards
+      
 
         self.create_cards()
 
+      
         # Toolbar
+      
 
         self.toolbar = Toolbar(self.main_frame)
 
@@ -145,227 +176,301 @@ class Dashboard:
             pady=20
         )
 
+      
+        # Toolbar Events
+      
+
+        self.toolbar.upload_btn.configure(
+            command=self.upload_csv
+        )
+
+        self.toolbar.refresh_btn.configure(
+            command=self.refresh_table
+        )
+
+        self.toolbar.export_btn.configure(
+            command=self.export_report
+        )
+
+        self.toolbar.search.bind(
+            "<KeyRelease>",
+            self.search_inventory
+        )
+
+        self.toolbar.category.configure(
+            command=self.filter_category
+        )
+
+        self.toolbar.status.configure(
+            command=self.filter_status
+        )
+
+        self.toolbar.analyze_btn.configure(
+            command=self.show_analytics
+        )
+        self.toolbar.clean_btn.configure(
+            command=self.clean_inventory
+        )
+
+        self.toolbar.clean_btn.configure(
+            command=self.clean_inventory
+        )
+
+      
         # Inventory Table
+      
 
         self.create_table()
 
-
+               
+        # Analytics Dashboard
        
 
-
-    
-# Inventory Table
-
-    def create_table(self):
-
-        table_frame = ctk.CTkFrame(
-            self.main_frame,
-            fg_color=self.card_color,
-            corner_radius=20
+        self.charts = DashboardCharts(
+            self.main_frame
         )
 
-        table_frame.pack(
+        self.charts.pack(
             fill="both",
             expand=True,
             padx=25,
             pady=(0, 20)
         )
 
-    #Title 
 
-        title = ctk.CTkLabel(
-           table_frame,
-            text="Inventory Data",
-            font=("Segoe UI", 22, "bold")
+        # Charts
+
+        self.charts = DashboardCharts(
+            self.main_frame
         )
 
-        title.pack(
-            anchor="w",
-            padx=20,
-            pady=20
-        )
-
-    # Columns
-
-        columns = (
-
-            "Product ID",
-
-            "Product Name",
-
-            "Category",
-
-            "Supplier",
-
-            "Stock",
-
-            "Price",
-
-            "Status"
-
-        )
-
-        self.tree = ttk.Treeview(
-        table_frame,
-        columns=columns,
-        show="headings",
-        height=15
-        )
-
-    #Headings 
-
-        for column in columns:
-            self.tree.heading(
-                column,
-                text=column
-            )
-
-            self.tree.column(
-                column,
-                width=170,
-                anchor="center"
-            )
-
-    #Scrollbar
-
-        scrollbar = ttk.Scrollbar(
-            table_frame,
-            orient="vertical",
-            command=self.tree.yview
-        )
-
-        self.tree.configure(
-            yscrollcommand=scrollbar.set
-        )
-
-        self.tree.pack(
-            side="left",
+        self.charts.pack(
             fill="both",
             expand=True,
-            padx=(20, 0),
+            padx=25,
             pady=(0, 20)
         )
 
-        scrollbar.pack(
-            side="right",
-            fill="y",
-            padx=(0, 20),
-            pady=(0, 20)
-        )
+        
 
-    #Sample Data
-
-        sample_data = [
-
-            (
-                "Laptop",
-                "Electronics",
-                20,
-                "₹65000",
-                "Dell",
-                "In Stock"
-            ),
-
-            (
-                "Mouse",
-                "Accessories",
-                120,
-                "₹499",
-                "Logitech",
-                "In Stock"
-            ),
-
-            (
-                "Keyboard",
-                "Accessories",
-                10,
-                "₹1200",
-                "Logitech",
-                "Low Stock"
-            )
-
-        ]
-
-    #Insert Data
-
-        for row in sample_data:
-
-            self.tree.insert(
-                "",
-                "end",
-                values=row
+       
+        
+    # Filter Category
     
-         )
-            
+    def clean_inventory(self):
+
+        if self.processor.df.empty:
+            return
+
+        df = self.processor.clean_data()
+
+        self.inventory_table.load_data(df)
+        
+        self.charts.update_dashboard(df)
+
+        kpis = self.processor.calculate_kpis()
+
+        self.products_card.update_value(
+            str(kpis["products"])
+        )
+
+        self.inventory_card.update_value(
+            f"₹{kpis['inventory_value']:,.0f}"
+        )
+
+        self.low_stock_card.update_value(
+            str(kpis["low_stock"])
+        )
+
+        self.suppliers_card.update_value(
+            str(kpis["suppliers"])
+        )
+
+    def filter_category(self, category):
+
+        if self.processor.df.empty:
+            return
+
+        df = self.processor.filter_category(category)
+
+        self.inventory_table.load_data(df)
+
+    
+    # Filter Status
+    
+
+    def filter_status(self, status):
+
+        if self.processor.df.empty:
+            return
+
+        df = self.processor.filter_status(status)
+
+        self.inventory_table.load_data(df)
+
+    
+    # Show Analytics
+    
+
+    def show_analytics(self):
+
+        if self.processor.df.empty:
+            return
+
+        self.charts.update_dashboard(
+            self.processor.df
+        )
+
+        print("\n=========================================\n")
+
+    
+    # Inventory Table
+    
+
+    def create_table(self):
+
+        self.inventory_table = InventoryTable(
+            self.main_frame
+        )
+
+        self.inventory_table.pack(
+            fill="both",
+            expand=True,
+            padx=25,
+            pady=(0, 20)
+        )
+
+    
+    # Upload CSV
+    
+
     def upload_csv(self):
 
         file_path = filedialog.askopenfilename(
-        title="Select Inventory CSV",
-        filetypes=[("CSV Files","*.csv")]
-
-    )
+            title="Select Inventory CSV",
+            filetypes=[("CSV Files", "*.csv")]
+        )
 
         if file_path:
             self.load_csv(file_path)
+
     
+    # Load CSV
+    
+
     def load_csv(self, file_path):
 
-        import pandas as pd
+        df = self.processor.load_csv(file_path)
 
-        df = pd.read_csv(file_path)
+        df = self.processor.clean_data()
 
-    # Calculate Dashboard KPIs
+        self.analytics = InventoryAnalytics(df)
 
-        total_products = len(df)
+        kpis = self.processor.calculate_kpis()
 
-        inventory_value = (df["Stock"] * df["Price"]).sum()
-
-        low_stock = len(df[df["Stock"] <= df["Reorder Level"]])
-
-        total_suppliers = df["Supplier"].nunique()
-
-
-# Update Dashboard Card=
-
-        self.products_card.update_value(str(total_products))
-
-        self.inventory_card.update_value(f"₹{inventory_value:,.0f}")
-
-        self.low_stock_card.update_value(str(low_stock))
-
-        self.suppliers_card.update_value(str(total_suppliers))
-
-
-        # Clear Previous Table Data
-
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        # Insert CSV Data into Table
-
-        for _, row in df.iterrows():
-
-            self.tree.insert(
-                "",
-                "end",
-                values=(
-                    row["Product ID"],
-
-                    row["Product Name"],
-
-                    row["Category"],
-
-                    row["Supplier"],
-
-                    row["Stock"],
-
-                    f"₹{row['Price']}",
-
-                    row["Status"]
-
-                )
+        self.products_card.update_value(
+            str(kpis["products"])
         )
-            
+
+        self.inventory_card.update_value(
+            f"₹{kpis['inventory_value']:,.0f}"
+        )
+
+        self.low_stock_card.update_value(
+            str(kpis["low_stock"])
+        )
+
+        self.suppliers_card.update_value(
+            str(kpis["suppliers"])
+        )
+
+        self.inventory_table.load_data(df)
+
+    
+    # Refresh Table
+    
+
+    def refresh_table(self):
+
+        if self.processor.df.empty:
+            return
+
+        self.inventory_table.load_data(
+            self.processor.df
+        )
+
+    # ==========================================
+# Clean Inventory Data
+# ==========================================
+
+    def clean_inventory(self):
+
+        if self.processor.df.empty:
+            return
+
+        # Clean the data
+        df = self.processor.clean_data()
+
+        # Refresh KPI Cards
+        kpis = self.processor.calculate_kpis()
+
+        self.products_card.update_value(
+            str(kpis["products"])
+        )
+
+        self.inventory_card.update_value(
+            f"₹{kpis['inventory_value']:,.0f}"
+        )
+
+        self.low_stock_card.update_value(
+            str(kpis["low_stock"])
+        )
+
+        self.suppliers_card.update_value(
+            str(kpis["suppliers"])
+        )
+
+        # Refresh Inventory Table
+        self.inventory_table.load_data(df)
+
+        # Refresh Charts
+        self.charts.update_dashboard(df)
+
+        # Show Success Message
+        self.show_message(
+            "Inventory cleaned successfully!"
+        )
+    # Export Report
+    
+
+    def export_report(self):
+
+        if self.processor.df.empty:
+            return
+
+        self.exporter.export_excel(
+            self.processor.df
+        )
+
+    
+    # Search Inventory
+    
+
+    def search_inventory(self, event):
+
+        if self.processor.df.empty:
+            return
+
+        keyword = self.toolbar.search.get()
+
+        df = self.processor.search(keyword)
+
+        self.inventory_table.load_data(df)
+                
+        
+    # Dashboard KPI Cards
+    
+
     def create_cards(self):
 
         cards_frame = ctk.CTkFrame(
@@ -407,7 +512,7 @@ class Dashboard:
 
         self.low_stock_card = DashboardCard(
             cards_frame,
-            "⚠",
+            "⚠️",
             "Low Stock",
             "0"
         )
@@ -430,9 +535,45 @@ class Dashboard:
             column=3,
             padx=12
         )
+
+    # ==========================================
+# Success Message
+# ==========================================
+
+    def show_message(self, message):
+
+        popup = ctk.CTkToplevel(self.root)
+
+        popup.title("Success")
+
+        popup.geometry("350x150")
+
+        popup.resizable(False, False)
+
+        popup.grab_set()
+
+        label = ctk.CTkLabel(
+            popup,
+            text=message,
+            font=("Segoe UI", 18, "bold")
+        )
+
+        label.pack(
+            pady=30
+        )
+
+        button = ctk.CTkButton(
+            popup,
+            text="OK",
+            command=popup.destroy
+        )
+
+        button.pack(
+            pady=10
+        )
+    # Run Application
     
-    # Run
-    
+
     def run(self):
 
         self.root.mainloop()

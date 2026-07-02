@@ -1,4 +1,6 @@
 import customtkinter as ctk
+from PIL import Image
+from pathlib import Path
 
 
 class Sidebar(ctk.CTkFrame):
@@ -7,29 +9,61 @@ class Sidebar(ctk.CTkFrame):
 
         super().__init__(
             parent,
-            width=240,
+            width=250,
             corner_radius=0,
-            fg_color="#111827"
+            fg_color="#1F434E"
         )
 
         self.pack_propagate(False)
 
-        self.create_logo()
+        # Path to assets folder
+        
+        self.base_dir = Path(__file__).resolve().parent.parent
+        self.logo_path = self.base_dir / "assets" / "logo.png"
 
+        self.create_logo()
         self.create_menu()
 
-    # Logo
+    # Logo Section
 
     def create_logo(self):
 
-        logo = ctk.CTkLabel(
+        logo_frame = ctk.CTkFrame(
             self,
-            text="🏪 Inventory Pro",
-            font=("Segoe UI", 30, "bold")
+            fg_color="transparent"
         )
 
-        logo.pack(
-            pady=(30, 40)
+        logo_frame.pack(
+            pady=(30, 40),
+            padx=20,
+            fill="x"
+        )
+
+        # Load Logo Image
+        logo_image = ctk.CTkImage(
+            light_image=Image.open(self.logo_path),
+            dark_image=Image.open(self.logo_path),
+            size=(55, 55)
+        )
+
+        logo_label = ctk.CTkLabel(
+            logo_frame,
+            image=logo_image,
+            text=""
+        )
+
+        logo_label.pack(side="left")
+
+        title = ctk.CTkLabel(
+            logo_frame,
+            text="Inventory\nPro",
+            justify="left",
+            font=("Segoe UI", 20, "bold")
+        )
+
+        title.pack(
+            side="left",
+            padx=12
         )
 
     # Sidebar Menu
@@ -58,11 +92,11 @@ class Sidebar(ctk.CTkFrame):
 
                 self,
 
-                text=f"{icon}  {name}",
+                text=f"{icon}   {name}",
 
-                height=48,
+                height=50,
 
-                width=200,
+                corner_radius=12,
 
                 fg_color="transparent",
 
@@ -70,30 +104,38 @@ class Sidebar(ctk.CTkFrame):
 
                 anchor="w",
 
-                font=("Segoe UI", 16)
+                font=("Segoe UI", 16),
+
+                command=lambda n=name: self.highlight(n)
 
             )
 
             button.pack(
+                fill="x",
                 padx=18,
-                pady=6,
-                fill="x"
+                pady=6
             )
 
             self.buttons[name] = button
 
         self.highlight("Dashboard")
 
-    # Active Button
+    # Highlight Active Menu
 
-    def highlight(self, menu):
+    def highlight(self, selected):
 
-        for button in self.buttons.values():
+        for name, button in self.buttons.items():
 
-            button.configure(
-                fg_color="transparent"
-            )
+            if name == selected:
 
-        self.buttons[menu].configure(
-            fg_color="#2563EB"
-        )
+                button.configure(
+                    fg_color="#2563EB",
+                    font=("Segoe UI", 16, "bold")
+                )
+
+            else:
+
+                button.configure(
+                    fg_color="transparent",
+                    font=("Segoe UI", 16)
+                )
