@@ -262,3 +262,21 @@ class InventoryProcessor:
         self.df = self.df.copy()
 
         return self.df
+    
+
+   
+# Add Product
+
+
+    def add_product(self, product):
+
+        import pandas as pd
+
+        new_row = pd.DataFrame([product])
+
+        self.df = pd.concat(
+            [self.df, new_row],
+            ignore_index=True
+        )
+
+        return self.df

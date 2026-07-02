@@ -2,6 +2,7 @@ import customtkinter as ctk
 from PIL import Image
 from pathlib import Path
 
+self.callback = None
 
 class Sidebar(ctk.CTkFrame):
 
@@ -15,6 +16,12 @@ class Sidebar(ctk.CTkFrame):
         )
 
         self.pack_propagate(False)
+          # Navigation callback
+        self.callback = None
+
+        self.create_sidebar()
+
+
 
         # Path to assets folder
         

@@ -2,24 +2,22 @@ import customtkinter as ctk
 
 from ui.header import Header
 from ui.cards import DashboardCard
+from ui.toolbar import Toolbar
+from ui.inventory_table import InventoryTable
 
 
 class DashboardPage(ctk.CTkFrame):
 
-    def __init__(self, parent):
+    def __init__(self,parent):
 
         super().__init__(
             parent,
             fg_color="#0F172A"
         )
 
-        self.card_color = "#1E293B"
-
         self.create_page()
 
-    
-    # Create Dashboard Page
-    
+    # ===========================================
 
     def create_page(self):
 
@@ -37,8 +35,8 @@ class DashboardPage(ctk.CTkFrame):
 
         welcome = ctk.CTkFrame(
             self,
-            fg_color=self.card_color,
             height=120,
+            fg_color="#1E293B",
             corner_radius=20
         )
 
@@ -51,112 +49,171 @@ class DashboardPage(ctk.CTkFrame):
         welcome.pack_propagate(False)
 
         title = ctk.CTkLabel(
+
             welcome,
+
             text="Welcome Back 👋",
-            font=("Segoe UI",26,"bold")
+
+            font=("Segoe UI",28,"bold")
+
         )
 
         title.pack(
+
             anchor="w",
+
             padx=25,
+
             pady=(20,5)
+
         )
 
-        subtitle = ctk.CTkLabel(
+        text = ctk.CTkLabel(
+
             welcome,
-            text="Retail Inventory Analytics Dashboard",
+
+            text="Monitor inventory and business performance from one place.",
+
             font=("Segoe UI",15),
+
             text_color="lightgray"
+
         )
 
-        subtitle.pack(
+        text.pack(
+
             anchor="w",
+
             padx=25
+
         )
 
-        # KPI Cards
+        self.create_cards()
 
-        cards_frame = ctk.CTkFrame(
-            self,
-            fg_color="transparent"
-        )
+        self.toolbar = Toolbar(self)
 
-        cards_frame.pack(
+        self.toolbar.pack(
+
             fill="x",
+
             padx=25,
+
+            pady=20
+
+        )
+
+        self.table = InventoryTable(self)
+
+        self.table.pack(
+
+            fill="both",
+
+            expand=True,
+
+            padx=25,
+
+            pady=(0,20)
+
+        )
+
+    # ===========================================
+
+    def create_cards(self):
+
+        frame = ctk.CTkFrame(
+
+            self,
+
+            fg_color="transparent"
+
+        )
+
+        frame.pack(
+
+            fill="x",
+
+            padx=25,
+
             pady=15
+
         )
 
-        self.products = DashboardCard(
-            cards_frame,
+        DashboardCard(
+
+            frame,
+
             "📦",
+
             "Products",
-            "0"
-        )
 
-        self.products.grid(
+            "0"
+
+        ).grid(
+
             row=0,
+
             column=0,
-            padx=10
+
+            padx=12
+
         )
 
-        self.value = DashboardCard(
-            cards_frame,
+        DashboardCard(
+
+            frame,
+
             "💰",
+
             "Inventory Value",
+
             "₹0"
-        )
 
-        self.value.grid(
+        ).grid(
+
             row=0,
+
             column=1,
-            padx=10
+
+            padx=12
+
         )
 
-        self.low_stock = DashboardCard(
-            cards_frame,
-            "⚠️",
+        DashboardCard(
+
+            frame,
+
+            "⚠",
+
             "Low Stock",
-            "0"
-        )
 
-        self.low_stock.grid(
+            "0"
+
+        ).grid(
+
             row=0,
+
             column=2,
-            padx=10
+
+            padx=12
+
         )
 
-        self.suppliers = DashboardCard(
-            cards_frame,
+        DashboardCard(
+
+            frame,
+
             "🚚",
+
             "Suppliers",
+
             "0"
-        )
 
-        self.suppliers.grid(
+        ).grid(
+
             row=0,
+
             column=3,
-            padx=10
-        )
 
-    
-    # Update KPI Cards
-    
+            padx=12
 
-    def update_cards(self, kpis):
-
-        self.products.update_value(
-            str(kpis["products"])
-        )
-
-        self.value.update_value(
-            f"₹{kpis['inventory_value']:,.0f}"
-        )
-
-        self.low_stock.update_value(
-            str(kpis["low_stock"])
-        )
-
-        self.suppliers.update_value(
-            str(kpis["suppliers"])
         )

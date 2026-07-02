@@ -11,7 +11,7 @@ from ui.charts import DashboardCharts
 from services.inventory_processor import InventoryProcessor
 from services.analytics import InventoryAnalytics
 from services.exporter import Exporter
-
+from ui.dashboard_summary import SummaryCard
 
 class Dashboard:
 
@@ -160,13 +160,101 @@ class Dashboard:
 
       
         # KPI Cards
-      
+        summary = ctk.CTkFrame(
+            self.main_frame,
+            fg_color="transparent"
+        )
+
+        summary.pack(
+            fill="x",
+            padx=25,
+            pady=(10,20)
+        )
+
+        self.summary1 = SummaryCard(
+            summary,
+            "💰",
+            "Revenue",
+            "#10B981"
+        )
+
+        self.summary1.pack(
+            side="left",
+            padx=10
+        )
+
+        self.summary2 = SummaryCard(
+            summary,
+            "📈",
+            "Growth",
+            "#3B82F6"
+        )
+
+        self.summary2.pack(
+            side="left",
+            padx=10
+        )
+
+        self.summary3 = SummaryCard(
+            summary,
+            "⚠",
+            "Alerts",
+            "#EF4444"
+        )
+
+        self.summary3.pack(
+            side="left",
+            padx=10
+        )
+
+        self.summary4 = SummaryCard(
+            summary,
+            "🏆",
+            "Best Category",
+            "#F59E0B"
+        )
+
+        self.summary4.pack(
+            side="left",
+            padx=10
+        )
 
         self.create_cards()
 
-      
-        # Toolbar
-      
+            
+                # Toolbar
+        revenue = (
+            df["Stock"] *
+            df["Price"]
+        ).sum()
+
+        growth = "18%"
+
+        alerts = len(
+            df[
+                df["Stock"] <=
+                df["Reorder Level"]
+            ]
+        )
+
+        best = (
+            df.assign(
+                Value=df["Stock"] * df["Price"]
+            )
+            .groupby("Category")["Value"]
+            .sum()
+            .idxmax()
+        )
+
+        self.summary1.update(
+            f"₹{revenue:,.0f}"
+        )
+
+        self.summary2.update(growth)
+
+        self.summary3.update(str(alerts))
+
+        self.summary4.update(best)    
 
         self.toolbar = Toolbar(self.main_frame)
 
@@ -212,8 +300,17 @@ class Dashboard:
             command=self.clean_inventory
         )
 
-        self.toolbar.clean_btn.configure(
-            command=self.clean_inventory
+        
+        # Charts
+
+        self.charts = DashboardCharts(
+            self.main_frame
+        )
+        
+        self.charts.pack(
+            fill="both",
+            padx=25,
+            pady=(20, 20)
         )
 
       
@@ -222,38 +319,7 @@ class Dashboard:
 
         self.create_table()
 
-               
-        # Analytics Dashboard
-       
 
-        self.charts = DashboardCharts(
-            self.main_frame
-        )
-
-        self.charts.pack(
-            fill="both",
-            expand=True,
-            padx=25,
-            pady=(0, 20)
-        )
-
-
-        # Charts
-
-        self.charts = DashboardCharts(
-            self.main_frame
-        )
-
-        self.charts.pack(
-            fill="both",
-            expand=True,
-            padx=25,
-            pady=(0, 20)
-        )
-
-        
-
-       
         
     # Filter Category
     
@@ -285,7 +351,6 @@ class Dashboard:
         self.suppliers_card.update_value(
             str(kpis["suppliers"])
         )
-
     def filter_category(self, category):
 
         if self.processor.df.empty:
@@ -295,7 +360,7 @@ class Dashboard:
 
         self.inventory_table.load_data(df)
 
-    
+        self.charts.update_dashboard(df)
     # Filter Status
     
 
@@ -308,6 +373,8 @@ class Dashboard:
 
         self.inventory_table.load_data(df)
 
+        self.charts.update_dashboard(df)
+
     
     # Show Analytics
     
@@ -317,15 +384,112 @@ class Dashboard:
         if self.processor.df.empty:
             return
 
-        self.charts.update_dashboard(
-            self.processor.df
+        df = self.processor.df
+
+        inventory_value = (
+            df["Stock"] *
+            df["Price"]
+        ).sum()
+
+        total_products = len(df)
+
+        suppliers = df["Supplier"].nunique()
+
+        low_stock = len(
+
+            df[
+                df["Stock"] <=
+                df["Reorder Level"]
+            ]
+
         )
 
-        print("\n=========================================\n")
+        highest_category = (
 
-    
-    # Inventory Table
-    
+            df.assign(
+                Value=df["Stock"] * df["Price"]
+            )
+
+            .groupby("Category")["Value"]
+
+            .sum()
+
+            .idxmax()
+
+        )
+
+        popup = ctk.CTkToplevel(self.root)
+
+        popup.title("Business Analytics")
+
+        popup.geometry("600x500")
+
+        popup.grab_set()
+
+        title = ctk.CTkLabel(
+
+            popup,
+
+            text="📊 Business Analytics Summary",
+
+            font=("Segoe UI",24,"bold")
+
+        )
+
+        title.pack(
+            pady=20
+        )
+
+        text = f"""
+
+            📦 Total Products : {total_products}
+
+            💰 Inventory Value : ₹{inventory_value:,.0f}
+
+            🚚 Suppliers : {suppliers}
+
+            ⚠ Low Stock : {low_stock}
+
+            🏆 Highest Category :
+
+            {highest_category}
+
+        """
+
+        info = ctk.CTkTextbox(
+
+            popup,
+
+            width=500,
+
+            height=250
+
+        )
+
+        info.pack(
+            padx=20,
+            pady=20,
+            fill="both",
+            expand=True
+        )
+
+        info.insert("1.0", text)
+
+        info.configure(state="disabled")
+
+        close = ctk.CTkButton(
+
+            popup,
+
+            text="Close",
+
+            command=popup.destroy
+
+        )
+
+        close.pack(
+            pady=20
+        )
 
     def create_table(self):
 
@@ -389,7 +553,6 @@ class Dashboard:
     
     # Refresh Table
     
-
     def refresh_table(self):
 
         if self.processor.df.empty:
@@ -399,48 +562,9 @@ class Dashboard:
             self.processor.df
         )
 
-    # ==========================================
-# Clean Inventory Data
-# ==========================================
-
-    def clean_inventory(self):
-
-        if self.processor.df.empty:
-            return
-
-        # Clean the data
-        df = self.processor.clean_data()
-
-        # Refresh KPI Cards
-        kpis = self.processor.calculate_kpis()
-
-        self.products_card.update_value(
-            str(kpis["products"])
+        self.charts.update_dashboard(
+            self.processor.df
         )
-
-        self.inventory_card.update_value(
-            f"₹{kpis['inventory_value']:,.0f}"
-        )
-
-        self.low_stock_card.update_value(
-            str(kpis["low_stock"])
-        )
-
-        self.suppliers_card.update_value(
-            str(kpis["suppliers"])
-        )
-
-        # Refresh Inventory Table
-        self.inventory_table.load_data(df)
-
-        # Refresh Charts
-        self.charts.update_dashboard(df)
-
-        # Show Success Message
-        self.show_message(
-            "Inventory cleaned successfully!"
-        )
-    # Export Report
     
 
     def export_report(self):
@@ -466,8 +590,9 @@ class Dashboard:
         df = self.processor.search(keyword)
 
         self.inventory_table.load_data(df)
-                
-        
+
+        self.charts.update_dashboard(df)
+            
     # Dashboard KPI Cards
     
 

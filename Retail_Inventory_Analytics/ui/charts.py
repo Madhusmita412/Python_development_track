@@ -11,18 +11,19 @@ class DashboardCharts(ctk.CTkFrame):
         super().__init__(
             parent,
             fg_color="#1E293B",
-            corner_radius=20
+            corner_radius=20,
+            height=650
         )
 
-        self.pack_propagate(False)
         self.figures = {}
         self.axes = {}
         self.canvases = {}
+
         self.create_layout()
 
-    # ==========================================
+    # =====================================================
     # Create Layout
-    # ==========================================
+    # =====================================================
 
     def create_layout(self):
 
@@ -35,7 +36,7 @@ class DashboardCharts(ctk.CTkFrame):
         title.pack(
             anchor="w",
             padx=20,
-            pady=(20,10)
+            pady=(20, 10)
         )
 
         charts_frame = ctk.CTkFrame(
@@ -47,68 +48,72 @@ class DashboardCharts(ctk.CTkFrame):
             fill="both",
             expand=True,
             padx=20,
-            pady=(0,20)
+            pady=(0, 20)
         )
 
         charts_frame.grid_columnconfigure(0, weight=1)
         charts_frame.grid_columnconfigure(1, weight=1)
-        charts_frame.grid_rowconfigure(0, weight=1)
-        charts_frame.grid_rowconfigure(1, weight=1)
+        charts_frame.grid_rowconfigure(
+            0,
+            weight=1,
+            minsize=260
+        )
 
-        # Chart 1
-        self.chart1 = self.create_chart_frame(
+        charts_frame.grid_rowconfigure(
+            1,
+            weight=1,
+            minsize=260
+        )
+
+        self.create_chart_frame(
             charts_frame,
             "Inventory Value by Category"
-        )
-        self.chart1.grid(row=0,column=0,padx=10,pady=10,sticky="nsew")
+        ).grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Chart 2
-        self.chart2 = self.create_chart_frame(
+        self.create_chart_frame(
             charts_frame,
             "Stock Distribution"
-        )
-        self.chart2.grid(row=0,column=1,padx=10,pady=10,sticky="nsew")
+        ).grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-        # Chart 3
-        self.chart3 = self.create_chart_frame(
+        self.create_chart_frame(
             charts_frame,
             "Products per Supplier"
-        )
-        self.chart3.grid(row=1,column=0,padx=10,pady=10,sticky="nsew")
+        ).grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Chart 4
-        self.chart4 = self.create_chart_frame(
+        self.create_chart_frame(
             charts_frame,
             "Low Stock Products"
-        )
-        self.chart4.grid(row=1,column=1,padx=10,pady=10,sticky="nsew")
+        ).grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-        # ==========================================
-    # Create Individual Chart Frame
-    # ==========================================
+    # =====================================================
+    # Create Single Chart
+    # =====================================================
 
-    def create_chart_frame(self, parent, title):
-
+    def create_chart_frame(self, parent, chart_name):
         frame = ctk.CTkFrame(
             parent,
             fg_color="#0F172A",
-            corner_radius=15
+            corner_radius=15,
+            height=260
         )
+
+        frame.grid_propagate(False)
+        frame.pack_propagate(False)
 
         label = ctk.CTkLabel(
             frame,
-            text=title,
+            text=chart_name,
             font=("Segoe UI", 16, "bold")
         )
 
         label.pack(
             anchor="w",
             padx=15,
-            pady=(12, 5)
+            pady=(10, 5)
         )
 
         figure = Figure(
-            figsize=(5, 3),
+            figsize=(5,3.8),
             dpi=100
         )
 
@@ -118,16 +123,13 @@ class DashboardCharts(ctk.CTkFrame):
 
         ax.set_facecolor("#0F172A")
 
-        # Axis Styling
+        ax.tick_params(colors="white")
 
-        ax.tick_params(
-            colors="white"
-        )
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
 
         ax.spines["bottom"].set_color("white")
         ax.spines["left"].set_color("white")
-        ax.spines["top"].set_color("#0F172A")
-        ax.spines["right"].set_color("#0F172A")
 
         canvas = FigureCanvasTkAgg(
             figure,
@@ -136,45 +138,54 @@ class DashboardCharts(ctk.CTkFrame):
 
         canvas.draw()
 
-        canvas.get_tk_widget().pack(
+        canvas_widget = canvas.get_tk_widget()
+
+        canvas_widget.configure(
+            height=170
+        )
+
+        canvas_widget.pack(
             fill="both",
             expand=True,
             padx=10,
-            pady=10
+            pady=(5,10)
         )
 
-        # Save references
+        self.figures[chart_name] = figure
+        self.axes[chart_name] = ax
+        self.canvases[chart_name] = canvas
 
-        self.figures[title] = figure
-        self.axes[title] = ax
-        self.canvases[title] = canvas
-        return frame    
-            
+        return frame
 
-        # ==========================================
-    # Update All Charts
-    # ==========================================
+    # =====================================================
+    # Update Dashboard
+    # =====================================================
 
     def update_dashboard(self, dataframe):
+
+        if dataframe.empty:
+            return
 
         self.plot_inventory_value(dataframe)
         self.plot_stock_distribution(dataframe)
         self.plot_supplier_products(dataframe)
         self.plot_low_stock(dataframe)
 
-    # ==========================================
-    # Chart 1 - Inventory Value by Category
-    # ==========================================
+        self.update_idletasks()
+
+    # =====================================================
+    # Inventory Value Chart
+    # =====================================================
 
     def plot_inventory_value(self, dataframe):
 
         ax = self.axes["Inventory Value by Category"]
+
         ax.clear()
 
         values = (
             dataframe.groupby("Category")
             .apply(lambda x: (x["Stock"] * x["Price"]).sum())
-            .sort_values(ascending=False)
         )
 
         ax.bar(
@@ -182,22 +193,34 @@ class DashboardCharts(ctk.CTkFrame):
             values.values
         )
 
-        ax.set_title("Inventory Value", color="white")
+        ax.set_title(
+            "Inventory Value",
+            color="white"
+        )
 
-        ax.tick_params(axis="x", rotation=25, colors="white")
-        ax.tick_params(axis="y", colors="white")
+        ax.tick_params(
+            axis="x",
+            rotation=20,
+            colors="white"
+        )
+
+        ax.tick_params(
+            axis="y",
+            colors="white"
+        )
 
         ax.set_facecolor("#0F172A")
 
         self.canvases["Inventory Value by Category"].draw()
 
-    # ==========================================
-    # Chart 2 - Stock Distribution
-    # ==========================================
+    # =====================================================
+    # Stock Distribution
+    # =====================================================
 
     def plot_stock_distribution(self, dataframe):
 
         ax = self.axes["Stock Distribution"]
+
         ax.clear()
 
         stock = dataframe.groupby("Category")["Stock"].sum()
@@ -213,9 +236,9 @@ class DashboardCharts(ctk.CTkFrame):
 
         self.canvases["Stock Distribution"].draw()
 
-    # ==========================================
-    # Chart 3 - Products per Supplier
-    # ==========================================
+    # =====================================================
+    # Supplier Chart
+    # =====================================================
 
     def plot_supplier_products(self, dataframe):
 
@@ -228,8 +251,7 @@ class DashboardCharts(ctk.CTkFrame):
         ax.plot(
             suppliers.index,
             suppliers.values,
-            marker="o",
-            linewidth=2
+            marker="o"
         )
 
         ax.set_title(
@@ -239,7 +261,7 @@ class DashboardCharts(ctk.CTkFrame):
 
         ax.tick_params(
             axis="x",
-            rotation=25,
+            rotation=20,
             colors="white"
         )
 
@@ -252,9 +274,9 @@ class DashboardCharts(ctk.CTkFrame):
 
         self.canvases["Products per Supplier"].draw()
 
-    # ==========================================
-    # Chart 4 - Low Stock Products
-    # ==========================================
+    # =====================================================
+    # Low Stock Chart
+    # =====================================================
 
     def plot_low_stock(self, dataframe):
 
@@ -278,15 +300,7 @@ class DashboardCharts(ctk.CTkFrame):
             color="white"
         )
 
-        ax.tick_params(
-            axis="x",
-            colors="white"
-        )
-
-        ax.tick_params(
-            axis="y",
-            colors="white"
-        )
+        ax.tick_params(colors="white")
 
         ax.set_facecolor("#0F172A")
 
